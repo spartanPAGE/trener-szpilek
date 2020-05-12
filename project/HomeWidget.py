@@ -60,5 +60,6 @@ class HomeWidget(QWidget):
         )
 
         if os.path.isdir(selected_directory):
-            self.app.set_workspace_directory(selected_directory)
+            self.app.set_workspace_path(selected_directory)
+            self.app.load_workspace_structures()
             self.set_requireing_workspace_buttons_enabled(True)

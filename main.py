@@ -11,10 +11,13 @@ from PyQt5.QtWidgets import (
 from project.HomeWidget import HomeWidget
 from project.TagStructuresWidget import TagStructuresWidget
 
+from project.StructuresIO import save_structures, load_structures
+
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.workspace_directory = ""
+        self.workspace_path = ""
+        self.workspace_structures = {}
         self.init_ui()
         self.show()
         self.center()
@@ -34,8 +37,8 @@ class App(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def set_workspace_directory(self, directory):
-        self.workspace_directory = directory
+    def set_workspace_path(self, directory):
+        self.workspace_path = directory
 
     def launch_tag_structures(self):
         self.tagStructuresWidget.load_images_paths()
@@ -43,6 +46,15 @@ class App(QMainWindow):
 
     def go_home(self):
         self.stacked.setCurrentWidget(self.homeWidget)
+
+    def load_workspace_structures(self):
+        print('loading workspace structures...')
+        self.workspace_structures = load_structures(self.workspace_path)
+        import pprint
+        pprint.pprint(self.workspace_structures)
+
+    def save_workspace_structures(self):
+        save_structures(self.workspace_path, self.workspace_structures)
 
 
 if __name__ == '__main__':
