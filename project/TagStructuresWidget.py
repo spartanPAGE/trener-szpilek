@@ -20,9 +20,9 @@ class TagStructuresWidget(QWidget):
         super().__init__()
         self.images_paths = []
         self.app = app
-        self.define_layout()
+        self.init_ui()
 
-    def define_layout(self):
+    def init_ui(self):
         self.files_list = QListWidget()
         self.files_list.itemClicked.connect(self.on_files_list_item_clicked)
 

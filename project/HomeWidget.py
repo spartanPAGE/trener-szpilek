@@ -14,7 +14,7 @@ class HomeWidget(QWidget):
         self.requireing_workspace_buttons = []
 
         self.splash_screen()
-        self.define_layout()
+        self.init_ui()
         self.show()
 
     def splash_screen(self):
@@ -22,7 +22,7 @@ class HomeWidget(QWidget):
         self.label = QLabel()
         self.label.setPixmap(self.im)
 
-    def define_layout(self):
+    def init_ui(self):
         self.grid = QGridLayout()
         self.grid.addWidget(self.label, 1, 1)
 
