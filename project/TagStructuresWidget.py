@@ -36,11 +36,13 @@ class TagStructuresWidget(QWidget):
         self.init_ui()
 
     def init_ui(self):
+        self.image_widget.set_highlighter_pixmap(QPixmap("./resources/arrow.png"))
+        self.image_widget.hide_highlighter()
         self.files_list.itemClicked.connect(self.on_files_list_item_clicked)
         self.structures_list.itemChanged.connect(self.on_structure_name_changed)
         self.structures_list.itemClicked.connect(self.on_structure_name_clicked)
         self.image_widget.on_tag_added.connect(self.on_tag_added)
-        self.highlighter_checkbox.stateChanged.connect(self.image_widget.set_hightlighter_state)
+        self.highlighter_checkbox.stateChanged.connect(self.set_hightlighter_visibility_state)
 
         self.grid = QGridLayout()
         self.grid.setColumnStretch(0, 1)
@@ -73,6 +75,7 @@ class TagStructuresWidget(QWidget):
         self.selected_image_path = item.text()
         image_path = os.path.join(self.app.workspace_path, self.selected_image_path)
         self.image_widget.set_pixmap(QPixmap(image_path))
+        self.image_widget.hide_highlighter()
         self.image_widget.clear_tags()
         label_id = 0
 
@@ -101,6 +104,9 @@ class TagStructuresWidget(QWidget):
     def on_structure_name_clicked(self, item):
         item_id = self.structures_list.indexFromItem(item).row()
         self.image_widget.highlight_tag_at(item_id)
+
+        if self.highlighter_checkbox.checkState() == Qt.Checked:
+            self.image_widget.show_highlighter()
 
     def update_structure_name(self, item_id, item):
         # update tag
@@ -135,3 +141,9 @@ class TagStructuresWidget(QWidget):
             tagdata['x'],
             tagdata['y'])
         )
+
+    def set_hightlighter_visibility_state(self, state):
+        if len(self.structures_list.selectedItems()) > 0 and state:
+            self.image_widget.show_highlighter()
+        else:
+            self.image_widget.hide_highlighter()

@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import (
     QGraphicsProxyWidget,
     QGraphicsPixmapItem
 )
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from project.QtImageViewer import QtImageViewer
 from project.TagWidget import TagWidget
@@ -12,6 +11,7 @@ from project.TagWidget import TagWidget
 class PixmapNotSetError(Exception):
     pass
 
+HIGHLIGHTER_ZORDER = 1000
 class TaggableImageWidget(QWidget):
     on_tag_added = pyqtSignal(float, float)
 
@@ -33,8 +33,10 @@ class TaggableImageWidget(QWidget):
 
     def set_pixmap(self, pixmap):
         self.image_viewer.setImage(pixmap)
-        self.highlighter = self.image_viewer.scene.addPixmap(QPixmap("./resources/arrow.png"))
-        self.hide_highlighter()
+        
+    def set_highlighter_pixmap(self, pixmap):
+        self.highlighter = self.image_viewer.scene.addPixmap(pixmap)
+        self.highlighter.setZValue(HIGHLIGHTER_ZORDER)
 
     def addWidget(self, widget):
         self.tags.append(self.image_viewer.scene.addWidget(widget))
@@ -44,10 +46,13 @@ class TaggableImageWidget(QWidget):
             self.image_viewer.scene.removeItem(tag)
         self.tags.clear()
 
-    def hide_highlighter(self):
-        self.set_hightlighter_state(False)
+    def show_highlighter(self):
+        self.set_hightlighter_visibility_state(True)
 
-    def set_hightlighter_state(self, state):
+    def hide_highlighter(self):
+        self.set_hightlighter_visibility_state(False)
+
+    def set_hightlighter_visibility_state(self, state):
         self.highlighter.setVisible(state)
 
     def highlight_tag_at(self, idx):
