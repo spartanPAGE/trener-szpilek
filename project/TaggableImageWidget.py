@@ -34,4 +34,10 @@ class TaggableImageWidget(QWidget):
         self.tags.clear()
 
     def tag_at(self, idx):
-        return self.image_viewer.scene.items(Qt.AscendingOrder)[idx+1].widget()
+        return self._tag_at_wrapped(idx).widget()
+
+    def remove_tag_at(self, idx):
+        self.image_viewer.scene.removeItem(self._tag_at_wrapped(idx))
+
+    def _tag_at_wrapped(self, idx):
+        return self.image_viewer.scene.items(Qt.AscendingOrder)[idx+1]

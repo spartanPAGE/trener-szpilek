@@ -74,6 +74,7 @@ class TagStructuresWidget(QWidget):
         self.image_widget.clear_tags()
         label_id = 0
 
+        self.structures_list.clear()
         for tagdata in self.app.workspace_structures[self.selected_image_path]:
             label_id += 1
             self.add_tag(label_id, tagdata)
@@ -89,13 +90,28 @@ class TagStructuresWidget(QWidget):
             self.add_tag(label_id, tagdata)
 
     def on_structure_name_changed(self, item):
-        # update tag
         item_id = self.structures_list.indexFromItem(item).row()
+        if len(item.text()) > 0:
+            self.update_structure_name(item_id, item)
+        else:
+            self.delete_structure(item_id, item)
+
+    def update_structure_name(self, item_id, item):
+        # update tag
         tag = self.image_widget.tag_at(item_id)
         tag.setToolTip(item.text())
         # update structure text
         structures = self.app.workspace_structures[self.selected_image_path]
         structures[item_id]['text'] = item.text()
+
+    def delete_structure(self, item_id, item):
+        # delete from structures
+        structures = self.app.workspace_structures[self.selected_image_path]
+        del structures[item_id]
+        # update list and tags, so IDs can be restored
+        mocked_item = QListWidgetItem()
+        mocked_item.setText(self.selected_image_path)
+        self.on_files_list_item_clicked(mocked_item)
 
     def save_and_go_home(self):
         self.app.save_workspace_structures()
