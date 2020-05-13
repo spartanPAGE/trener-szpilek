@@ -1,8 +1,16 @@
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout
+    QWidget,
+    QVBoxLayout,
+    QGraphicsProxyWidget,
+    QGraphicsPixmapItem
 )
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from project.QtImageViewer import QtImageViewer
+from project.TagWidget import TagWidget
+
+class PixmapNotSetError(Exception):
+    pass
 
 class TaggableImageWidget(QWidget):
     on_tag_added = pyqtSignal(float, float)
@@ -10,6 +18,7 @@ class TaggableImageWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.tags = []
+        self.highlighter: QGraphicsPixmapItem = None
         self.init_ui()
 
     def init_ui(self):
@@ -24,6 +33,8 @@ class TaggableImageWidget(QWidget):
 
     def set_pixmap(self, pixmap):
         self.image_viewer.setImage(pixmap)
+        self.highlighter = self.image_viewer.scene.addPixmap(QPixmap("./resources/arrow.png"))
+        self.hide_highlighter()
 
     def addWidget(self, widget):
         self.tags.append(self.image_viewer.scene.addWidget(widget))
@@ -33,11 +44,32 @@ class TaggableImageWidget(QWidget):
             self.image_viewer.scene.removeItem(tag)
         self.tags.clear()
 
+    def hide_highlighter(self):
+        self.set_hightlighter_state(False)
+
+    def set_hightlighter_state(self, state):
+        self.highlighter.setVisible(state)
+
+    def highlight_tag_at(self, idx):
+        if not self.highlighter:
+            raise PixmapNotSetError
+
+        tag_geometry = self.tag_at(idx).geometry()
+        self.highlighter.setPos(tag_geometry.left()-self.highlighter.boundingRect().width()/2, tag_geometry.bottom())
+
     def tag_at(self, idx):
-        return self._tag_at_wrapped(idx).widget()
+        return self._wrapped_tag_at(idx).widget()
 
     def remove_tag_at(self, idx):
-        self.image_viewer.scene.removeItem(self._tag_at_wrapped(idx))
+        self.image_viewer.scene.removeItem(self._wrapped_tag_at(idx))
 
-    def _tag_at_wrapped(self, idx):
-        return self.image_viewer.scene.items(Qt.AscendingOrder)[idx+1]
+    def _wrapped_tag_at(self, idx):
+        items = self.image_viewer.scene.items(Qt.AscendingOrder)
+
+        offset = 1
+        while not (
+            isinstance(items[offset], QGraphicsProxyWidget) and
+            isinstance(items[offset].widget(), TagWidget)
+        ): offset += 1
+
+        return self.image_viewer.scene.items(Qt.AscendingOrder)[idx+offset]

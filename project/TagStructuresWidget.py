@@ -1,14 +1,19 @@
 import os
 from PyQt5.QtWidgets import (
-    QLabel, QGridLayout,
-    QWidget, QInputDialog,
-    QPushButton, QListWidget,
-    QTabWidget, QListWidgetItem
+    QGridLayout,
+    QWidget,
+    QInputDialog,
+    QPushButton,
+    QListWidget,
+    QTabWidget,
+    QListWidgetItem,
+    QCheckBox,
 )
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
 from project.TaggableImageWidget import TaggableImageWidget
+from project.TagWidget import TagWidget
 
 def load_files_paths(directory, valid_extensions):
     paths = []
@@ -16,13 +21,6 @@ def load_files_paths(directory, valid_extensions):
         if path.lower().endswith(valid_extensions):
             paths.append(path)
     return paths
-
-class TagWidget(QLabel):
-    def __init__(self, text, tooltip, x, y):
-        super().__init__()
-        self.setText(text)
-        self.move(x, y)
-        self.setToolTip(tooltip)
 
 class TagStructuresWidget(QWidget):
     def __init__(self, app):
@@ -34,12 +32,15 @@ class TagStructuresWidget(QWidget):
         self.files_list = QListWidget()
         self.structures_list = QListWidget()
         self.image_widget = TaggableImageWidget()
+        self.highlighter_checkbox = QCheckBox("Wskaż wybraną strukturę")
         self.init_ui()
 
     def init_ui(self):
         self.files_list.itemClicked.connect(self.on_files_list_item_clicked)
         self.structures_list.itemChanged.connect(self.on_structure_name_changed)
+        self.structures_list.itemClicked.connect(self.on_structure_name_clicked)
         self.image_widget.on_tag_added.connect(self.on_tag_added)
+        self.highlighter_checkbox.stateChanged.connect(self.image_widget.set_hightlighter_state)
 
         self.grid = QGridLayout()
         self.grid.setColumnStretch(0, 1)
@@ -57,6 +58,7 @@ class TagStructuresWidget(QWidget):
         back_btn.clicked.connect(self.save_and_go_home)
 
         self.grid.addWidget(back_btn, 1, 0)
+        self.grid.addWidget(self.highlighter_checkbox, 1, 1)
 
         self.setLayout(self.grid)
 
@@ -95,6 +97,10 @@ class TagStructuresWidget(QWidget):
             self.update_structure_name(item_id, item)
         else:
             self.delete_structure(item_id, item)
+
+    def on_structure_name_clicked(self, item):
+        item_id = self.structures_list.indexFromItem(item).row()
+        self.image_widget.highlight_tag_at(item_id)
 
     def update_structure_name(self, item_id, item):
         # update tag
