@@ -62,6 +62,7 @@ class App(QMainWindow):
         self.stacked.setCurrentWidget(self.tag_structure_widget)
 
     def launch_training(self):
+        self.training_widget.init()
         self.stacked.setCurrentWidget(self.training_widget)
 
     def go_home(self):
