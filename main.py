@@ -23,6 +23,7 @@ class App(QMainWindow):
         self.center()
 
     def init_ui(self):
+        self.setWindowTitle("Trener Szpilek by Patryk Wertka")
         self.homeWidget = HomeWidget(self)
         self.tagStructuresWidget = TagStructuresWidget(self)
 
