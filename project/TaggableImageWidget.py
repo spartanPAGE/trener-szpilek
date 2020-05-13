@@ -11,6 +11,9 @@ from project.TagWidget import TagWidget
 class PixmapNotSetError(Exception):
     pass
 
+class BadAlignmentSetError(Exception):
+    pass
+
 HIGHLIGHTER_ZORDER = 1000
 class TaggableImageWidget(QWidget):
     on_tag_added = pyqtSignal(float, float)
@@ -19,6 +22,7 @@ class TaggableImageWidget(QWidget):
         super().__init__()
         self.tags = []
         self.highlighter: QGraphicsPixmapItem = None
+        self.highlighter_alignment = Qt.AlignCenter
         self.init_ui()
 
     def init_ui(self):
@@ -55,15 +59,29 @@ class TaggableImageWidget(QWidget):
     def set_hightlighter_visibility_state(self, state):
         self.highlighter.setVisible(state)
 
+    def set_highlighter_alignment(self, alignment):
+        self.highlighter_alignment = alignment
+
+    def move_highlighter(self, x, y):
+        if self.highlighter_alignment == Qt.AlignCenter:
+            self.highlighter.setPos(
+                x-self.highlighter.boundingRect().width()/2,
+                y
+            )
+        elif self.highlighter_alignment == Qt.AlignLeft:
+            self.highlighter.setPos(
+                x,
+                y
+            )
+        else:
+            raise BadAlignmentSetError
+
     def highlight_tag_at(self, idx):
         if not self.highlighter:
             raise PixmapNotSetError
 
         tag_geometry = self.tag_at(idx).geometry()
-        self.highlighter.setPos(
-            tag_geometry.left()-self.highlighter.boundingRect().width()/2,
-            tag_geometry.bottom()
-        )
+        self.move_highlighter(tag_geometry.left(), tag_geometry.bottom())
 
     def tag_at(self, idx):
         return self._wrapped_tag_at(idx).widget()

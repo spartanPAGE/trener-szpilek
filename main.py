@@ -14,7 +14,7 @@ from PyQt5.QtCore import QTimer, QEventLoop
 
 from project.HomeWidget import HomeWidget
 from project.TagStructuresWidget import TagStructuresWidget
-from project.TrainingWidget import TrainingWidget
+from project.TrainingWidget import PrepareTrainingWidget
 
 from project.StructuresIO import save_structures, load_structures
 
@@ -40,13 +40,13 @@ class App(QMainWindow):
         self.setWindowTitle("Trener Szpilek by Patryk Wertka")
         self.home_widget = HomeWidget(self)
         self.tag_structure_widget = TagStructuresWidget(self)
-        self.training_widget = TrainingWidget(self)
+        self.prepare_training_widget = PrepareTrainingWidget(self)
 
         self.stacked = QStackedWidget()
         self.setCentralWidget(self.stacked)
         self.stacked.addWidget(self.home_widget)
         self.stacked.addWidget(self.tag_structure_widget)
-        self.stacked.addWidget(self.training_widget)
+        self.stacked.addWidget(self.prepare_training_widget)
 
     def center(self):
         qr = self.frameGeometry()
@@ -62,8 +62,8 @@ class App(QMainWindow):
         self.stacked.setCurrentWidget(self.tag_structure_widget)
 
     def launch_training(self):
-        self.training_widget.init()
-        self.stacked.setCurrentWidget(self.training_widget)
+        self.prepare_training_widget.init()
+        self.stacked.setCurrentWidget(self.prepare_training_widget)
 
     def go_home(self):
         self.stacked.setCurrentWidget(self.home_widget)
