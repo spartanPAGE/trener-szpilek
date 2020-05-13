@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QLabel, QGridLayout,
     QWidget, QInputDialog,
     QPushButton, QListWidget,
+    QTabWidget,
 )
 from PyQt5.QtGui import QPixmap
 
@@ -30,6 +31,7 @@ class TagStructuresWidget(QWidget):
         self.app = app
 
         self.files_list = QListWidget()
+        self.structures_list = QListWidget()
         self.image_widget = TaggableImageWidget()
         self.image_widget.on_tag_added.connect(self.on_tag_added)
         self.init_ui()
@@ -40,7 +42,12 @@ class TagStructuresWidget(QWidget):
         self.grid = QGridLayout()
         self.grid.setColumnStretch(0, 1)
         self.grid.setColumnStretch(1, 3)
-        self.grid.addWidget(self.files_list, 0, 0)
+
+        self.lists_tab = QTabWidget()
+        self.lists_tab.addTab(self.files_list, "Zdjęcia")
+        self.lists_tab.addTab(self.structures_list, "Struktury")
+
+        self.grid.addWidget(self.lists_tab, 0, 0)
 
         self.grid.addWidget(self.image_widget, 0, 1)
 
@@ -67,12 +74,21 @@ class TagStructuresWidget(QWidget):
 
         for tagdata in self.app.workspace_structures[self.selected_image_path]:
             label_id += 1
-            self.image_widget.addWidget(TagWidget(str(label_id), tagdata['text'], tagdata['x'], tagdata['y']))
+            self.structures_list.addItem(tagdata['text'])
+            self.image_widget.addWidget(
+                TagWidget(str(label_id),
+                tagdata['text'],
+                tagdata['x'],
+                tagdata['y'])
+            )
 
     def on_tag_added(self, x, y):
         text, ok = QInputDialog.getText(self, 'Wprowadź strukturę', 'Pol, Łac, Ang:')
         if ok:
-            self.app.workspace_structures[self.selected_image_path].append({'text': text, 'x': x, 'y': y})
+            structures = self.app.workspace_structures[self.selected_image_path]
+            tagdata = {'text': text, 'x': x, 'y': y}
+            structures.append(tagdata)
+
             label_id = str(len(self.app.workspace_structures[self.selected_image_path]))
             self.image_widget.addWidget(TagWidget(label_id, text, x, y))
 
