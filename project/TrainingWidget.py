@@ -184,6 +184,9 @@ class PrepareTrainingWidget(QWidget):
             self.max_structures_count
         )
 
+        if structures_count <= 0:
+            return
+
         workspace_structures = self.app.workspace_structures
         all_training_structures = []
         for image_path, tags in workspace_structures.items():
