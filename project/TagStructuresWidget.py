@@ -80,7 +80,7 @@ class TagStructuresWidget(QWidget):
         label_id = 0
 
         self.structures_list.clear()
-        for tagdata in self.app.workspace_structures[self.selected_image_path]:
+        for tagdata in self.app.workspace_structures.setdefault(self.selected_image_path, []):
             label_id += 1
             self.add_tag(label_id, tagdata)
 

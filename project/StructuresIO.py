@@ -10,9 +10,13 @@ def save_structures(workspace_path, data_dictionary, data_directory="_trener_dan
         with open(os.path.join(dir_path, imagename + ".txt"), "w") as f:
             f.write('{}'.format(data))
 
-def load_structures(workspace_path, data_directory="_trener_dane_"):
+def load_structures(workspace_path="", data_directory="_trener_dane_"):
     data_dictionary = {}
-    dir_path = os.path.join(workspace_path, data_directory)
+
+    if workspace_path:
+        dir_path = os.path.join(workspace_path, data_directory)
+    else:
+        dir_path = data_directory
 
     if os.path.exists(dir_path) and os.path.isdir(dir_path):
         for path in os.listdir(dir_path):

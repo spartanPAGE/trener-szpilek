@@ -10,8 +10,18 @@ from PyQt5.QtWidgets import (
 
 from project.HomeWidget import HomeWidget
 from project.TagStructuresWidget import TagStructuresWidget
+from project.TrainingWidget import TrainingWidget
 
 from project.StructuresIO import save_structures, load_structures
+
+def merged_structures_dicts(lhs, rhs):
+    result = {}
+    for imagepath, structures in rhs.items():
+        if imagepath in lhs:
+            result[imagepath] = lhs[imagepath] + structures
+        else:
+            result[imagepath] = structures.copy()
+    return result
 
 class App(QMainWindow):
     def __init__(self):
@@ -24,13 +34,15 @@ class App(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle("Trener Szpilek by Patryk Wertka")
-        self.homeWidget = HomeWidget(self)
-        self.tagStructuresWidget = TagStructuresWidget(self)
+        self.home_widget = HomeWidget(self)
+        self.tag_structure_widget = TagStructuresWidget(self)
+        self.training_widget = TrainingWidget(self)
 
         self.stacked = QStackedWidget()
         self.setCentralWidget(self.stacked)
-        self.stacked.addWidget(self.homeWidget)
-        self.stacked.addWidget(self.tagStructuresWidget)
+        self.stacked.addWidget(self.home_widget)
+        self.stacked.addWidget(self.tag_structure_widget)
+        self.stacked.addWidget(self.training_widget)
 
     def center(self):
         qr = self.frameGeometry()
@@ -42,19 +54,28 @@ class App(QMainWindow):
         self.workspace_path = directory
 
     def launch_tag_structures(self):
-        self.tagStructuresWidget.load_images_paths()
-        self.stacked.setCurrentWidget(self.tagStructuresWidget)
+        self.tag_structure_widget.load_images_paths()
+        self.stacked.setCurrentWidget(self.tag_structure_widget)
+
+    def launch_training(self):
+        self.stacked.setCurrentWidget(self.training_widget)
 
     def go_home(self):
-        self.stacked.setCurrentWidget(self.homeWidget)
+        self.stacked.setCurrentWidget(self.home_widget)
 
     def load_workspace_structures(self):
-        print('loading workspace structures...')
         self.workspace_structures = load_structures(self.workspace_path)
 
     def save_workspace_structures(self):
         save_structures(self.workspace_path, self.workspace_structures)
 
+    def import_structures(self, directory):
+        imported_structures = load_structures(data_directory=directory)
+        self.workspace_structures = merged_structures_dicts(
+            self.workspace_structures,
+            imported_structures
+        )
+        self.save_workspace_structures()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

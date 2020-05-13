@@ -34,17 +34,27 @@ class HomeWidget(QWidget):
         workspace_btn = QPushButton("Wybierz folder roboczy")
         workspace_btn.clicked.connect(self.select_workspace)
 
+        import_structures_btn = QPushButton("Importuj struktury")
+        import_structures_btn.clicked.connect(self.import_structures)
+
         tag_structures_btn = QPushButton("Oznacz struktury")
         tag_structures_btn.clicked.connect(self.app.launch_tag_structures)
 
         train_structures_btn = QPushButton("trenuj szpilki")
-        self.requireing_workspace_buttons = [tag_structures_btn, train_structures_btn]
+        train_structures_btn.clicked.connect(self.app.launch_training)
+
+        self.requireing_workspace_buttons = [
+            import_structures_btn,
+            tag_structures_btn,
+            train_structures_btn,
+        ]
         self.set_requireing_workspace_buttons_enabled(False)
 
         buttons_grid = QGridLayout()
         buttons_grid.addWidget(workspace_btn, 1, 1)
-        buttons_grid.addWidget(tag_structures_btn, 1, 2)
-        buttons_grid.addWidget(train_structures_btn, 1, 3)
+        buttons_grid.addWidget(import_structures_btn, 1, 2)
+        buttons_grid.addWidget(tag_structures_btn, 1, 3)
+        buttons_grid.addWidget(train_structures_btn, 1, 4)
         return buttons_grid
 
     def set_requireing_workspace_buttons_enabled(self, state):
@@ -63,3 +73,14 @@ class HomeWidget(QWidget):
             self.app.set_workspace_path(selected_directory)
             self.app.load_workspace_structures()
             self.set_requireing_workspace_buttons_enabled(True)
+
+    def import_structures(self):
+        selected_directory = QFileDialog.getExistingDirectory(
+            self,
+            "Wybierz obszar (folder) roboczy do zaimportowania",
+            expanduser("~"),
+            QFileDialog.ShowDirsOnly
+        )
+
+        if os.path.isdir(selected_directory):
+            self.app.import_structures(selected_directory)
