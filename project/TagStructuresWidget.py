@@ -3,9 +3,10 @@ from PyQt5.QtWidgets import (
     QLabel, QGridLayout,
     QWidget, QInputDialog,
     QPushButton, QListWidget,
-    QTabWidget,
+    QTabWidget, QListWidgetItem
 )
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 
 from project.TaggableImageWidget import TaggableImageWidget
 
@@ -33,11 +34,12 @@ class TagStructuresWidget(QWidget):
         self.files_list = QListWidget()
         self.structures_list = QListWidget()
         self.image_widget = TaggableImageWidget()
-        self.image_widget.on_tag_added.connect(self.on_tag_added)
         self.init_ui()
 
     def init_ui(self):
         self.files_list.itemClicked.connect(self.on_files_list_item_clicked)
+        self.structures_list.itemChanged.connect(self.on_structure_name_changed)
+        self.image_widget.on_tag_added.connect(self.on_tag_added)
 
         self.grid = QGridLayout()
         self.grid.setColumnStretch(0, 1)
@@ -74,13 +76,7 @@ class TagStructuresWidget(QWidget):
 
         for tagdata in self.app.workspace_structures[self.selected_image_path]:
             label_id += 1
-            self.structures_list.addItem(tagdata['text'])
-            self.image_widget.addWidget(
-                TagWidget(str(label_id),
-                tagdata['text'],
-                tagdata['x'],
-                tagdata['y'])
-            )
+            self.add_tag(label_id, tagdata)
 
     def on_tag_added(self, x, y):
         text, ok = QInputDialog.getText(self, 'Wprowadź strukturę', 'Pol, Łac, Ang:')
@@ -89,9 +85,31 @@ class TagStructuresWidget(QWidget):
             tagdata = {'text': text, 'x': x, 'y': y}
             structures.append(tagdata)
 
-            label_id = str(len(self.app.workspace_structures[self.selected_image_path]))
-            self.image_widget.addWidget(TagWidget(label_id, text, x, y))
+            label_id = len(self.app.workspace_structures[self.selected_image_path])
+            self.add_tag(label_id, tagdata)
+
+    def on_structure_name_changed(self, item):
+        # update tag
+        item_id = self.structures_list.indexFromItem(item).row()
+        tag = self.image_widget.tag_at(item_id)
+        tag.setToolTip(item.text())
+        # update structure text
+        structures = self.app.workspace_structures[self.selected_image_path]
+        structures[item_id]['text'] = item.text()
 
     def save_and_go_home(self):
         self.app.save_workspace_structures()
         self.app.go_home()
+
+    def add_tag(self, label_id, tagdata):
+        item_widget = QListWidgetItem()
+        item_widget.setText(tagdata['text'])
+        item_widget.setFlags(item_widget.flags() | Qt.ItemIsEditable)
+        self.structures_list.addItem(item_widget)
+
+        self.image_widget.addWidget(
+            TagWidget(str(label_id),
+            tagdata['text'],
+            tagdata['x'],
+            tagdata['y'])
+        )

@@ -50,8 +50,6 @@ class App(QMainWindow):
     def load_workspace_structures(self):
         print('loading workspace structures...')
         self.workspace_structures = load_structures(self.workspace_path)
-        import pprint
-        pprint.pprint(self.workspace_structures)
 
     def save_workspace_structures(self):
         save_structures(self.workspace_path, self.workspace_structures)

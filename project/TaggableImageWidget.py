@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout
 )
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 from project.QtImageViewer import QtImageViewer
 
 class TaggableImageWidget(QWidget):
@@ -32,3 +32,6 @@ class TaggableImageWidget(QWidget):
         for tag in self.tags:
             self.image_viewer.scene.removeItem(tag)
         self.tags.clear()
+
+    def tag_at(self, idx):
+        return self.image_viewer.scene.items(Qt.AscendingOrder)[idx+1].widget()
