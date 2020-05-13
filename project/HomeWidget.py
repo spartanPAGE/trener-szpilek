@@ -1,11 +1,11 @@
 import os
 from os.path import expanduser
 from PyQt5.QtWidgets import (
-    QLabel, QGridLayout,
-    QWidget, QFileDialog,
+    QGridLayout,
+    QWidget,
+    QFileDialog,
     QPushButton,
 )
-from PyQt5.QtGui import QPixmap
 
 class HomeWidget(QWidget):
     def __init__(self, app):
@@ -13,18 +13,12 @@ class HomeWidget(QWidget):
         self.app = app
         self.requireing_workspace_buttons = []
 
-        self.splash_screen()
         self.init_ui()
-        self.show()
-
-    def splash_screen(self):
-        self.im = QPixmap("./resources/splash.png")
-        self.label = QLabel()
-        self.label.setPixmap(self.im)
 
     def init_ui(self):
         self.grid = QGridLayout()
-        self.grid.addWidget(self.label, 1, 1)
+        self.grid.setColumnStretch(0, 2)
+        self.grid.setColumnStretch(3, 2)
 
         self.grid.addLayout(self.buttons_layout(), 2, 1)
 

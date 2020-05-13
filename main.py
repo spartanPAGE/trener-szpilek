@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 
 import sys
+import qdarkstyle
 from PyQt5.QtWidgets import (
     QMainWindow,
     QStackedWidget,
     QApplication,
-    QDesktopWidget
+    QDesktopWidget,
+    QSplashScreen,
 )
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QTimer, QEventLoop
 
 from project.HomeWidget import HomeWidget
 from project.TagStructuresWidget import TagStructuresWidget
@@ -75,9 +79,22 @@ class App(QMainWindow):
             self.workspace_structures,
             imported_structures
         )
-        self.save_workspace_structures()
+        self.save_workspace_structures() 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
+
+    pixmap = QPixmap('./resources/splash.png');
+    splash = QSplashScreen(pixmap)
+    splash.show()
+
+    loop = QEventLoop()
+    QTimer.singleShot(2500, loop.quit)
+    loop.exec_()
+
+    splash.hide()
     App().show()
     sys.exit(app.exec_())
+
+    
