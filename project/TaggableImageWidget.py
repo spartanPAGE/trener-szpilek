@@ -33,7 +33,7 @@ class TaggableImageWidget(QWidget):
 
     def set_pixmap(self, pixmap):
         self.image_viewer.setImage(pixmap)
-        
+
     def set_highlighter_pixmap(self, pixmap):
         self.highlighter = self.image_viewer.scene.addPixmap(pixmap)
         self.highlighter.setZValue(HIGHLIGHTER_ZORDER)
@@ -60,7 +60,10 @@ class TaggableImageWidget(QWidget):
             raise PixmapNotSetError
 
         tag_geometry = self.tag_at(idx).geometry()
-        self.highlighter.setPos(tag_geometry.left()-self.highlighter.boundingRect().width()/2, tag_geometry.bottom())
+        self.highlighter.setPos(
+            tag_geometry.left()-self.highlighter.boundingRect().width()/2,
+            tag_geometry.bottom()
+        )
 
     def tag_at(self, idx):
         return self._wrapped_tag_at(idx).widget()
