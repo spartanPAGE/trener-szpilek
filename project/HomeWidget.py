@@ -34,7 +34,7 @@ class HomeWidget(QWidget):
         tag_structures_btn = QPushButton("Oznacz struktury")
         tag_structures_btn.clicked.connect(self.app.launch_tag_structures)
 
-        train_structures_btn = QPushButton("trenuj szpilki")
+        train_structures_btn = QPushButton("Trenuj szpilki")
         train_structures_btn.clicked.connect(self.app.launch_training)
 
         self.requireing_workspace_buttons = [
