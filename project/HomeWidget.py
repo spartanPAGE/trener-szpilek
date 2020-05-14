@@ -71,7 +71,7 @@ class HomeWidget(QWidget):
     def import_structures(self):
         selected_directory = QFileDialog.getExistingDirectory(
             self,
-            "Wybierz obszar (folder) roboczy do zaimportowania",
+            "Wybierz dane trenera do zaimportowania",
             expanduser("~"),
             QFileDialog.ShowDirsOnly
         )
