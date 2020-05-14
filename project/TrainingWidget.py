@@ -51,6 +51,10 @@ class TrainingSummaryWidget(QWidget):
             image_widget.set_pixmap(images_pixmaps.setdefault(structure.image, QPixmap(image_path)))
             image_widget.set_highlighter_pixmap(self.arrow_pixmap)
             image_widget.set_highlighter_alignment(Qt.AlignLeft)
+            image_widget.move_highlighter(
+                structure.data["x"],
+                structure.data["y"]
+            )
             image_widget.show_highlighter()
             self.scrollarea_layout.addWidget(image_widget)
 
