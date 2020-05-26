@@ -28,10 +28,11 @@ def merged_structures_dicts(lhs, rhs):
     return result
 
 class App(QMainWindow):
-    def __init__(self):
+    def __init__(self, version):
         super().__init__()
         self.workspace_path = ""
         self.workspace_structures = {}
+        self.version = version
         self.init_ui()
         self.show()
         self.center()
@@ -95,7 +96,9 @@ if __name__ == '__main__':
     loop.exec_()
 
     splash.hide()
-    App().show()
+    
+    version = "1.2"
+    App(version).show()
     sys.exit(app.exec_())
 
     
