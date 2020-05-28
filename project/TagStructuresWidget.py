@@ -135,12 +135,12 @@ class TagStructuresWidget(QWidget):
         item_widget.setFlags(item_widget.flags() | Qt.ItemIsEditable)
         self.structures_list.addItem(item_widget)
 
-        self.image_widget.addWidget(
-            TagWidget(str(label_id),
+        tag_widget = TagWidget(str(label_id),
             tagdata['text'],
             tagdata['x'],
-            tagdata['y'])
+            tagdata['y']
         )
+        self.image_widget.addWidget(tag_widget)
 
     def set_hightlighter_visibility_state(self, state):
         if len(self.structures_list.selectedItems()) > 0 and state:

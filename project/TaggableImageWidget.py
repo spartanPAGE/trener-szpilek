@@ -4,7 +4,9 @@ from PyQt5.QtWidgets import (
     QGraphicsProxyWidget,
     QGraphicsPixmapItem
 )
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import QRectF, Qt, pyqtSignal
+from PyQt5.QtGui import QImage, QPainter
+
 from project.QtImageViewer import QtImageViewer
 from project.TagWidget import TagWidget
 
@@ -18,12 +20,14 @@ HIGHLIGHTER_ZORDER = 1000
 class TaggableImageWidget(QWidget):
     on_tag_added = pyqtSignal(float, float)
 
-    def __init__(self):
+    def __init__(self, pixmap = None):
         super().__init__()
         self.tags = []
         self.highlighter: QGraphicsPixmapItem = None
         self.highlighter_alignment = Qt.AlignCenter
         self.init_ui()
+        if (pixmap):
+            self.set_pixmap(pixmap)
 
     def init_ui(self):
         self.image_viewer = QtImageViewer()
@@ -44,6 +48,8 @@ class TaggableImageWidget(QWidget):
 
     def addWidget(self, widget):
         self.tags.append(self.image_viewer.scene.addWidget(widget))
+
+    def add_widget(self, widget): self.addWidget(widget)
 
     def clear_tags(self):
         for tag in self.tags:
@@ -99,3 +105,15 @@ class TaggableImageWidget(QWidget):
         ): offset += 1
 
         return self.image_viewer.scene.items(Qt.AscendingOrder)[idx+offset]
+
+    def image(self) -> QImage:
+        return self.image_viewer.image()
+
+    def save(self, path):
+        size = self.image().size()
+        image = QImage(size.width(), size.height(), QImage.Format_ARGB32_Premultiplied)
+        painter = QPainter(image)
+
+        self.image_viewer.scene.render(painter, QRectF(image.rect()), QRectF(self.image().rect()))
+        painter.end()
+        image.save(path)

@@ -37,10 +37,14 @@ class HomeWidget(QWidget):
         train_structures_btn = QPushButton("Trenuj szpilki")
         train_structures_btn.clicked.connect(self.app.launch_training)
 
+        generate_doc_btn = QPushButton("Wygeneruj dokument")
+        generate_doc_btn.clicked.connect(self.app.generate_doc)
+
         self.requireing_workspace_buttons = [
             import_structures_btn,
             tag_structures_btn,
             train_structures_btn,
+            generate_doc_btn,
         ]
         self.set_requireing_workspace_buttons_enabled(False)
 
@@ -49,6 +53,7 @@ class HomeWidget(QWidget):
         buttons_grid.addWidget(import_structures_btn, 1, 2)
         buttons_grid.addWidget(tag_structures_btn, 1, 3)
         buttons_grid.addWidget(train_structures_btn, 1, 4)
+        buttons_grid.addWidget(generate_doc_btn, 1, 5)
         return buttons_grid
 
     def set_requireing_workspace_buttons_enabled(self, state):

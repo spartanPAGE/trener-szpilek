@@ -15,9 +15,8 @@ from PyQt5.QtCore import QTimer, QEventLoop
 from project.HomeWidget import HomeWidget
 from project.TagStructuresWidget import TagStructuresWidget
 from project.TrainingWidget import PrepareTrainingWidget
-from project.GenerateDocWidget import GenerateDocWidget
 
-from project.StructuresIO import save_structures, load_structures
+from project.StructuresIO import save_structures, load_structures, generate_doc
 
 def merged_structures_dicts(lhs, rhs):
     result = {}
@@ -43,7 +42,6 @@ class App(QMainWindow):
         self.home_widget = HomeWidget(self)
         self.tag_structure_widget = TagStructuresWidget(self)
         self.prepare_training_widget = PrepareTrainingWidget(self)
-        self.generate_doc_widget: GenerateDocWidget = None
 
         self.stacked = QStackedWidget()
         self.setCentralWidget(self.stacked)
@@ -86,8 +84,7 @@ class App(QMainWindow):
         self.save_workspace_structures()
 
     def generate_doc(self):
-        self.generate_doc_widget = GenerateDocWidget(self)
-        self.generate_doc_widget.show()
+        generate_doc(self.workspace_path, self.workspace_structures)
 
 
 if __name__ == '__main__':
@@ -104,6 +101,8 @@ if __name__ == '__main__':
 
     splash.hide()
     
-    version = "1.3"
+    version = "1.2"
     App(version).show()
     sys.exit(app.exec_())
+
+    
