@@ -12,6 +12,7 @@ from project.TrainingWidget import PrepareTrainingWidget
 from project.GenerateDocWidget import GenerateDocWidget
 
 from project.StructuresIO import save_structures, load_structures
+from PyQt5 import QtGui
 
 def merged_structures_dicts(lhs, rhs):
     result = {}
@@ -34,6 +35,7 @@ class App(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle("Trener Szpilek by Patryk Wertka")
+        self.setWindowIcon(QtGui.QIcon(os.path.join("resources", "skull.ico")))
         self.home_widget = HomeWidget(self)
         self.tag_structure_widget = TagStructuresWidget(self)
         self.prepare_training_widget = PrepareTrainingWidget(self)
