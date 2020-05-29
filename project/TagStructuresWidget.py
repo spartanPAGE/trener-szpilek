@@ -1,14 +1,5 @@
 import os
-from PyQt5.QtWidgets import (
-    QGridLayout,
-    QWidget,
-    QInputDialog,
-    QPushButton,
-    QListWidget,
-    QTabWidget,
-    QListWidgetItem,
-    QCheckBox,
-)
+from PyQt5.QtWidgets import QCheckBox, QGridLayout, QHBoxLayout, QInputDialog, QListWidget, QListWidgetItem, QPushButton, QTabWidget, QWidget
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
@@ -59,7 +50,14 @@ class TagStructuresWidget(QWidget):
         back_btn = QPushButton("Zapisz i powróć")
         back_btn.clicked.connect(self.save_and_go_home)
 
-        self.grid.addWidget(back_btn, 1, 0)
+        save_btn = QPushButton("Zapisz")
+        save_btn.clicked.connect(self.app.save_workspace_structures)
+
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(back_btn)
+        btn_layout.addWidget(save_btn)
+
+        self.grid.addLayout(btn_layout, 1, 0)
         self.grid.addWidget(self.highlighter_checkbox, 1, 1)
 
         self.setLayout(self.grid)
