@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
+import sys, os
 import qdarkstyle
-from PyQt5.QtWidgets import (
-    QMainWindow,
-    QStackedWidget,
-    QApplication,
-    QDesktopWidget,
-    QSplashScreen,
-)
+from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QMessageBox, QSplashScreen, QStackedWidget
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer, QEventLoop
 
@@ -78,6 +72,16 @@ class App(QMainWindow):
         save_structures(self.workspace_path, self.workspace_structures)
 
     def import_structures(self, directory):
+        def normpath(p):
+            return os.path.normcase(os.path.normpath(p))
+
+        if (normpath(directory) == normpath(os.path.join(self.workspace_path, "_trener_dane_"))):
+            msg = QMessageBox()
+            msg.setText("Niepotrzebna akcja")
+            msg.setInformativeText("Próbujesz zaimportować struktury z aktualnie wybranego folderu roboczego. Nie ma takiej potrzeby :)")
+            msg.setWindowTitle("Niepotrzebny import")
+            msg.exec_()
+            return
         imported_structures = load_structures(data_directory=directory)
         self.workspace_structures = merged_structures_dicts(
             self.workspace_structures,
