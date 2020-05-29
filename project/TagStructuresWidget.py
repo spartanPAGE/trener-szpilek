@@ -30,8 +30,11 @@ class TagStructuresWidget(QWidget):
         self.image_widget.set_highlighter_pixmap(QPixmap("./resources/arrow.png"))
         self.image_widget.hide_highlighter()
         self.files_list.itemClicked.connect(self.on_files_list_item_clicked)
+        self.files_list.itemActivated.connect(self.on_files_list_item_clicked)
+
         self.structures_list.itemChanged.connect(self.on_structure_name_changed)
         self.structures_list.itemClicked.connect(self.on_structure_name_clicked)
+        self.structures_list.itemActivated.connect(self.on_structure_name_clicked)
         self.image_widget.on_tag_added.connect(self.on_tag_added)
         self.highlighter_checkbox.stateChanged.connect(self.set_hightlighter_visibility_state)
 
