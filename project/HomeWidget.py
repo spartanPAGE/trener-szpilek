@@ -1,11 +1,6 @@
 import os
 from os.path import expanduser
-from PyQt5.QtWidgets import (
-    QGridLayout,
-    QWidget,
-    QFileDialog,
-    QPushButton,
-)
+from PyQt5.QtWidgets import QFileDialog, QGridLayout, QLabel, QPushButton, QWidget
 
 class HomeWidget(QWidget):
     def __init__(self, app):
@@ -19,6 +14,12 @@ class HomeWidget(QWidget):
         self.grid = QGridLayout()
         self.grid.setColumnStretch(0, 2)
         self.grid.setColumnStretch(3, 2)
+
+        
+        version_label = QLabel()
+        version_label.setText("<b>Wersja {0}</b>".format(self.app.version))
+
+        self.grid.addWidget(version_label, 2, 0)
 
         self.grid.addLayout(self.buttons_layout(), 2, 1)
 
