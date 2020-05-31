@@ -45,7 +45,7 @@ class HomeWidget(QWidget):
             import_structures_btn,
             tag_structures_btn,
             train_structures_btn,
-        #    generate_doc_btn,
+            generate_doc_btn,
         ]
         self.set_requireing_workspace_buttons_enabled(False)
 
