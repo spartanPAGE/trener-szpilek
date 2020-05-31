@@ -1,4 +1,4 @@
 pyinstaller --onefile --windowed --name "trener szpilek" --icon="resources/skull.ico" main.py
-copy resources "dist/resources" /y
-copy README.md dist /y
+xcopy resources "dist\resources\" /S /E /Y
+copy README.md dist /Y
 copy LICENSE.txt dist /y
