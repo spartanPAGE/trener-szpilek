@@ -25,10 +25,16 @@ def generate_doc(workspace_path, data_dictionary):
         if (len(tags) == 0):
             continue
 
-        pixmap = QPixmap(os.path.join(workspace_path, imagename))
+        pixmap_src = os.path.join(workspace_path, imagename)
+        if not os.path.exists(pixmap_src):
+            print("{0} has tagged structures but the image file does not exist".format(imagename))
+            continue
+
+        pixmap = QPixmap(pixmap_src)
 
         image_widget = TaggableImageWidget(pixmap)
         image_widget.setMinimumSize(pixmap.size())
+
         put_tags_on_image_widget(image_widget, tags)
 
         temp_dir_path = os.path.join(workspace_path, "_dane_trenera_temp_")
