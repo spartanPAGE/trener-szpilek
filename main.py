@@ -94,6 +94,7 @@ class App(QMainWindow):
     def generate_doc(self):
         self.generate_doc_widget = GenerateDocWidget(self)
         self.generate_doc_widget.show()
+        self.generate_doc_widget.start()
 
 
 if __name__ == '__main__':
