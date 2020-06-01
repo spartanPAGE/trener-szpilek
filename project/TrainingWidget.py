@@ -1,15 +1,6 @@
 import random, os
 
-from PyQt5.QtWidgets import (
-    QVBoxLayout,
-    QWidget,
-    QPushButton,
-    QLineEdit,
-    QHBoxLayout,
-    QLabel,
-    QGridLayout,
-    QScrollArea
-)
+from PyQt5.QtWidgets import QCheckBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 from PyQt5.QtGui import QIntValidator, QPixmap
 from PyQt5.QtCore import Qt
@@ -71,10 +62,11 @@ class TrainingSummaryWidget(QWidget):
         self.setLayout(self.layout)
 
 class TrainingWidget(QWidget):
-    def __init__(self, app, training_structures):
+    def __init__(self, app, training_structures, should_show_answers_immediately):
         super().__init__()
         self.app = app
         self.structures_list = training_structures
+        self.should_show_answers_immediately = should_show_answers_immediately
         self.current_structure_idx = -1
         self.user_answers = []
         self.image_widget = TaggableImageWidget()
@@ -91,11 +83,22 @@ class TrainingWidget(QWidget):
         self.image_widget.set_highlighter_alignment(Qt.AlignLeft)
         self.grid.addWidget(self.image_widget, 0, 0)
 
-
         self.user_answer_lineedit = QLineEdit()
         self.user_answer_lineedit.setFixedHeight(30)
         self.user_answer_lineedit.returnPressed.connect(self.on_user_line_finished)
-        self.grid.addWidget(self.user_answer_lineedit, 1, 0)
+
+        if self.should_show_answers_immediately:
+            horizontal_layout = QHBoxLayout()
+            horizontal_layout.addWidget(self.user_answer_lineedit)
+
+            show_answer_btn = QPushButton("pokaż odp.")
+            show_answer_btn.clicked.connect(self.show_current_structure_answer)
+            horizontal_layout.addWidget(show_answer_btn)
+            self.grid.addLayout(horizontal_layout, 1, 0)
+        else:
+            self.grid.addWidget(self.user_answer_lineedit, 1, 0)
+
+        
 
         self.setLayout(self.grid)
 
@@ -134,6 +137,12 @@ class TrainingWidget(QWidget):
         )
         self.image_widget.show_highlighter()
 
+    def show_current_structure_answer(self):
+        msg = QMessageBox()
+        msg.setText(self.current_structure().data["text"])
+        msg.setWindowTitle("Nazwa struktury")
+        msg.exec_()
+
 
 class PrepareTrainingWidget(QWidget):
     def __init__(self, app):
@@ -157,6 +166,8 @@ class PrepareTrainingWidget(QWidget):
 
         self.structures_count_lineedit = QLineEdit()
 
+        self.show_answers_immediately_checkbox = QCheckBox("Chcesz od razu widzieć odpowiedzi?")
+
         self.structures_count_lineedit.setMaximumWidth(200)
 
         self.back_btn = QPushButton("powrót")
@@ -178,13 +189,14 @@ class PrepareTrainingWidget(QWidget):
         vertical_layouts[1].setAlignment(Qt.AlignCenter)
         vertical_layouts[1].addWidget(self.structures_count_label)
         vertical_layouts[1].addWidget(self.structures_count_lineedit)
+        vertical_layouts[1].addWidget(self.show_answers_immediately_checkbox)
         vertical_layouts[1].addWidget(self.start_btn)
         horizontal_layout.addStretch()
         self.setLayout(horizontal_layout)
 
     def start_trening(self):
         structures_count = min(
-            int(self.structures_count_lineedit.text()),
+            int(self.structures_count_lineedit.text() or '0'),
             self.max_structures_count
         )
 
@@ -199,6 +211,7 @@ class PrepareTrainingWidget(QWidget):
 
         training_structures = random.sample(all_training_structures, structures_count)
 
-        self.training = TrainingWidget(self.app, training_structures)
+        immediate_answers_checkbox_state = self.show_answers_immediately_checkbox.isChecked()
+        self.training = TrainingWidget(self.app, training_structures, should_show_answers_immediately = immediate_answers_checkbox_state)
         self.training.setWindowTitle("Sesja treningowa")
         self.training.show()

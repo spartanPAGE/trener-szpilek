@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, os
+import sys, os, random
 import qdarkstyle
 from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QMessageBox, QSplashScreen, QStackedWidget
 from PyQt5.QtGui import QPixmap
@@ -13,6 +13,7 @@ from project.GenerateDocWidget import GenerateDocWidget
 
 from project.StructuresIO import save_structures, load_structures
 from PyQt5 import QtGui
+
 
 def merged_structures_dicts(lhs, rhs):
     result = {}
@@ -98,6 +99,7 @@ class App(QMainWindow):
 
 
 if __name__ == '__main__':
+    random.seed()
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
 
@@ -111,6 +113,6 @@ if __name__ == '__main__':
 
     splash.hide()
     
-    version = "1.6"
+    version = "1.7"
     App(version).show()
     sys.exit(app.exec_())
