@@ -113,6 +113,6 @@ if __name__ == '__main__':
 
     splash.hide()
     
-    version = "1.7"
+    version = "1.8"
     App(version).show()
     sys.exit(app.exec_())

@@ -4,12 +4,13 @@ import os
 from docx.shared import Inches
 from docx import Document
 
-from PyQt5.QtWidgets import QFileDialog, QLabel, QTextEdit, QVBoxLayout, QWidget
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import QEventLoop, QThread, QTimer, pyqtSignal
+from PyQt5.QtWidgets import QFileDialog, QLabel, QProgressBar, QTextEdit, QVBoxLayout, QWidget
+from PyQt5.QtGui import QPixmap, QMovie
+from PyQt5.QtCore import QEventLoop, QThread, QTimer, pyqtSignal, QThreadPool
 
 from project.TaggableImageWidget import TaggableImageWidget
 from project.TagWidget import TagWidget
+from project.Worker import Worker
 
 def put_tags_on_image_widget(image_widget: TaggableImageWidget, tags):
     for idx, tag in enumerate(tags, start=1):
@@ -18,12 +19,14 @@ def put_tags_on_image_widget(image_widget: TaggableImageWidget, tags):
 
         image_widget.add_widget(tag_widget)
 
-def generate_doc(workspace_path, data_dictionary):
+def generate_doc(workspace_path, data_dictionary, progress_callback):
     document = Document()
 
     for imagename, tags in data_dictionary.items():
         if (len(tags) == 0):
             continue
+
+        progress_callback.emit(imagename)
 
         pixmap_src = os.path.join(workspace_path, imagename)
         if not os.path.exists(pixmap_src):
@@ -45,6 +48,7 @@ def generate_doc(workspace_path, data_dictionary):
 
         image_widget.save(image_path)
         document.add_picture(image_path, Inches(7.5))
+        document.add_paragraph(imagename)
         table = document.add_table(len(tags), cols=2)
         table.style = 'TableGrid'
         table.allow_autofit = False
@@ -70,24 +74,45 @@ class GenerateDocWidget(QWidget):
     def __init__(self, app):
         super().__init__()
         self.app = app
+        self.threadpool = QThreadPool()
+        self.images = None
         self.init_ui()
 
     def init_ui(self):
         self.setWindowTitle("Generowanie dokumentu w toku...")
 
-        layout = QVBoxLayout()
-        label = QLabel()
-        label.setText("Poczekaj, generuję dokument. Nic nie klikaj (w przyszłości będziesz mógł)")
-        layout.addWidget(label)
-        self.setLayout(layout)
+        self.layout = QVBoxLayout()
+
+        self.label = QLabel()
+        self.movie = QMovie(os.path.join("resources", "waiting.gif"))
+        self.movie.start()
+        self.label.setMovie(self.movie)
+        self.layout.addWidget(self.label)
+
+        self.progressbar = QProgressBar()
+        self.layout.addWidget(self.progressbar)
+
+        self.textedit = QTextEdit()
+        self.textedit.setEnabled(False)
+        self.layout.addWidget(self.textedit)
+        self.setLayout(self.layout)
 
     def start(self):
-        loop = QEventLoop()
-        QTimer.singleShot(1, self._on_timer)
-        loop.exec_()
+        self.images = list(self.app.workspace_structures.keys())
+        worker = Worker(self.generate_doc)
+        worker.signals.result.connect(self.on_document_ready)
+        worker.signals.progress.connect(self.on_progress)
+        self.threadpool.start(worker)
 
-    def _on_timer(self):
-        document = generate_doc(self.app.workspace_path, self.app.workspace_structures)
+    def generate_doc(self, progress_callback):
+        return generate_doc(self.app.workspace_path, self.app.workspace_structures, progress_callback)
+
+    def on_progress(self, imagename):
+        self.textedit.append("Przygotowuję {}...".format(imagename))
+        self.progressbar.setValue(100.0 * float(self.images.index(imagename)+1) / float(len(self.images)))
+        print("on progress:", imagename)
+
+    def on_document_ready(self, document):
         self.hide()
         document_path = QFileDialog.getSaveFileName(None, "Zapisz dokument", "oznaczone struktury.docx", "docx (*.docx)")
         if document_path[0] != "":
