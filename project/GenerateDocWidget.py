@@ -1,11 +1,12 @@
 
 import os
+import shutil
 
 from docx.shared import Inches
 from docx import Document
 
 from PyQt5.QtWidgets import QFileDialog, QLabel, QProgressBar, QTextEdit, QVBoxLayout, QWidget
-from PyQt5.QtGui import QPixmap, QMovie
+from PyQt5.QtGui import QPixmap, QMovie, QFont
 from PyQt5.QtCore import QEventLoop, QThread, QTimer, pyqtSignal, QThreadPool
 
 from project.TaggableImageWidget import TaggableImageWidget
@@ -15,12 +16,18 @@ from project.Worker import Worker
 def put_tags_on_image_widget(image_widget: TaggableImageWidget, tags):
     for idx, tag in enumerate(tags, start=1):
         tag_widget = TagWidget(str(idx), "", tag["x"], tag["y"])
-        tag_widget.adjust_to_size(image_widget.size(), 0.015)
+        tag_widget.adjust_to_size(image_widget.size(), 0.015/2)
 
         image_widget.add_widget(tag_widget)
 
 def generate_doc(workspace_path, data_dictionary, progress_callback):
     document = Document()
+
+    temp_dir_path = os.path.join(workspace_path, "_trener_dane_temp_")
+    if os.path.exists(temp_dir_path):
+        shutil.rmtree(temp_dir_path, ignore_errors=True)
+    else:
+        os.mkdir(temp_dir_path)
 
     for imagename, tags in data_dictionary.items():
         if (len(tags) == 0):
@@ -39,10 +46,6 @@ def generate_doc(workspace_path, data_dictionary, progress_callback):
         image_widget.setMinimumSize(pixmap.size())
 
         put_tags_on_image_widget(image_widget, tags)
-
-        temp_dir_path = os.path.join(workspace_path, "_dane_trenera_temp_")
-        if not os.path.exists(temp_dir_path):
-            os.mkdir(temp_dir_path)
 
         image_path = os.path.join(temp_dir_path, imagename)
 

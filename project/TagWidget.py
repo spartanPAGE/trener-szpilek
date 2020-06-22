@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QFont
 class TagWidget(QLabel):
     def __init__(self, text, tooltip, x, y):
         super().__init__()
@@ -11,4 +12,6 @@ class TagWidget(QLabel):
 
     def adjust_to_size(self, size: QSize, ratio: float):
         pixels = min(size.width(), size.height()) * ratio
-        self.setStyleSheet("font: {0}pt".format(pixels))
+        points = int(pixels) # todo: magic conversion
+        font = QFont("Times", points) 
+        self.setFont(font)

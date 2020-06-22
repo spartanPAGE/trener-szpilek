@@ -141,6 +141,8 @@ class TagStructuresWidget(QWidget):
             tagdata['x'],
             tagdata['y']
         )
+        tag_widget.adjust_to_size(self.image_widget.image().size(), 0.015/2)
+
         self.image_widget.addWidget(tag_widget)
 
     def set_hightlighter_visibility_state(self, state):
