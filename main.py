@@ -9,7 +9,7 @@ from PyQt5.QtCore import QTimer, QEventLoop
 from project.HomeWidget import HomeWidget
 from project.TagStructuresWidget import TagStructuresWidget
 from project.TrainingWidget import PrepareTrainingWidget
-from project.GenerateDocWidget import GenerateDocWidget
+from project.GenerateDocWidget import GenerateDocSettingsWidget
 
 from project.StructuresIO import save_structures, load_structures
 from PyQt5 import QtGui
@@ -40,7 +40,7 @@ class App(QMainWindow):
         self.home_widget = HomeWidget(self)
         self.tag_structure_widget = TagStructuresWidget(self)
         self.prepare_training_widget = PrepareTrainingWidget(self)
-        self.generate_doc_widget: GenerateDocWidget = None
+        self.generate_doc_settings_widget: GenerateDocSettingsWidget = None
 
         self.stacked = QStackedWidget()
         self.setCentralWidget(self.stacked)
@@ -93,9 +93,8 @@ class App(QMainWindow):
         self.save_workspace_structures()
 
     def generate_doc(self):
-        self.generate_doc_widget = GenerateDocWidget(self)
-        self.generate_doc_widget.show()
-        self.generate_doc_widget.start()
+        self.generate_doc_settings_widget = GenerateDocSettingsWidget(self)
+        self.generate_doc_settings_widget.show()
 
 
 if __name__ == '__main__':
@@ -113,6 +112,6 @@ if __name__ == '__main__':
 
     splash.hide()
     
-    version = "1.9"
+    version = "1.10"
     App(version).show()
     sys.exit(app.exec_())

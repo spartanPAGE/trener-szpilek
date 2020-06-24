@@ -5,7 +5,7 @@ import shutil
 from docx.shared import Inches
 from docx import Document
 
-from PyQt5.QtWidgets import QFileDialog, QLabel, QProgressBar, QTextEdit, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QFileDialog, QLabel, QProgressBar, QTextEdit, QVBoxLayout, QWidget, QCheckBox, QPushButton
 from PyQt5.QtGui import QPixmap, QMovie, QFont
 from PyQt5.QtCore import QEventLoop, QThread, QTimer, pyqtSignal, QThreadPool
 
@@ -20,18 +20,38 @@ def put_tags_on_image_widget(image_widget: TaggableImageWidget, tags):
 
         image_widget.add_widget(tag_widget)
 
-def generate_doc(workspace_path, data_dictionary, progress_callback):
+def apply_settings_to_tags(tags, settings):
+    results = []
+    SEPARATORS_TO_NORMALIZE = [";", ":", "/", " ,", " - ", " -", "- "]
+    for tag in tags:
+        if settings["delete_dots"]:
+            tag["text"] = tag["text"].replace(".", " ")
+        if settings["normalize_separators"]:
+            for separator in SEPARATORS_TO_NORMALIZE:
+                tag["text"] = tag["text"].replace(separator, ", ")
+        if settings["normalize_whitespaces"]:
+            tag["text"] = " ".join(tag["text"].split())
+        if settings["normalize_letters_to_lowercase"]:
+            tag["text"] = tag["text"].lower()
+        results.append(tag)
+    return results
+    
+
+def generate_doc(workspace_path, data_dictionary, settings, progress_callback):
     document = Document()
 
     temp_dir_path = os.path.join(workspace_path, "_trener_dane_temp_")
     if os.path.exists(temp_dir_path):
         shutil.rmtree(temp_dir_path, ignore_errors=True)
+        os.mkdir(temp_dir_path)
     else:
         os.mkdir(temp_dir_path)
 
     for imagename, tags in data_dictionary.items():
         if (len(tags) == 0):
             continue
+
+        tags = apply_settings_to_tags(tags, settings)
 
         progress_callback.emit(imagename)
 
@@ -44,6 +64,9 @@ def generate_doc(workspace_path, data_dictionary, progress_callback):
 
         image_widget = TaggableImageWidget(pixmap)
         image_widget.setMinimumSize(pixmap.size())
+
+        import pprint
+        pprint.pprint(tags)
 
         put_tags_on_image_widget(image_widget, tags)
 
@@ -62,7 +85,6 @@ def generate_doc(workspace_path, data_dictionary, progress_callback):
             table.rows[idx].cells[0].width = Inches(0.5)
             table.rows[idx].cells[1].text = tag["text"]
             table.rows[idx].cells[1].width = Inches(7)
-            print(str(idx+1), tag["text"])
 
         document.add_page_break()
 
@@ -72,6 +94,50 @@ def generate_doc(workspace_path, data_dictionary, progress_callback):
         section.right_margin = Inches(0.5)
 
     return document
+
+def checked(checkbox):
+    checkbox.setChecked(True)
+    return checkbox
+
+class GenerateDocSettingsWidget(QWidget):
+    def __init__(self, app):
+        super().__init__()
+        self.app = app
+        self.generate_doc_widget: GenerateDocWidget(app) = None
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Ustawienia generowania dokumentu")
+        self.layout = QVBoxLayout()
+
+        self.delete_dots = checked(QCheckBox("Usunąć kropki?"))
+        self.layout.addWidget(self.delete_dots)
+
+        self.normalize_separators = checked(QCheckBox("Zamienić wszystkie dziwne znaki na przecinki? ('/' -> ',' etc)"))
+        self.layout.addWidget(self.normalize_separators)
+
+        self.normalize_whitespaces = checked(QCheckBox("Ujednolicić białe znaki? ('bla,bla' -> 'bla, bla' etc)"))
+        self.layout.addWidget(self.normalize_whitespaces)
+
+        self.normalize_letters_to_lowercase = checked(QCheckBox("Zamienić wszystkie znaki na małe? ('Ulna DEX' -> 'ulna dex' etc)"))
+        self.layout.addWidget(self.normalize_letters_to_lowercase)
+
+        self.generate_btn = QPushButton("Wygeneruj")
+        self.generate_btn.clicked.connect(self.start)
+        self.layout.addWidget(self.generate_btn)
+        
+        self.setLayout(self.layout)
+    
+    def start(self):
+        self.generate_doc_widget = GenerateDocWidget(self.app)
+        self.generate_doc_widget.show()
+        self.generate_doc_widget.start({
+            "delete_dots": self.delete_dots.isChecked(),
+            "normalize_separators": self.normalize_separators.isChecked(),
+            "normalize_whitespaces": self.normalize_whitespaces.isChecked(),
+            "normalize_letters_to_lowercase": self.normalize_letters_to_lowercase.isChecked()
+        })
+        self.close()
 
 class GenerateDocWidget(QWidget):
     def __init__(self, app):
@@ -100,15 +166,16 @@ class GenerateDocWidget(QWidget):
         self.layout.addWidget(self.textedit)
         self.setLayout(self.layout)
 
-    def start(self):
+    def start(self, settings):
         self.images = list(self.app.workspace_structures.keys())
-        worker = Worker(self.generate_doc)
+        worker = Worker(self.generate_doc, settings=settings)
         worker.signals.result.connect(self.on_document_ready)
         worker.signals.progress.connect(self.on_progress)
         self.threadpool.start(worker)
 
-    def generate_doc(self, progress_callback):
-        return generate_doc(self.app.workspace_path, self.app.workspace_structures, progress_callback)
+    def generate_doc(self, progress_callback, settings):
+        print(settings)
+        return generate_doc(self.app.workspace_path, self.app.workspace_structures, settings, progress_callback)
 
     def on_progress(self, imagename):
         self.textedit.append("Przygotowuję {}...".format(imagename))
