@@ -1,11 +1,4 @@
-Program do nauki szpilek.
-Kod jest pisany dosłownie na kolanie, bo w końcu lekarski na głowie.
-Testów - zero.
-Viewmodeli - zero.
-Architektura - taśmą klejona.
-
-No ale w końcu działa, więc hej.
-Tak długo, jak nie będzie grzebane w plikach z zapisem struktur lub jakieś zdjęcie magicznie nie zniknie, to będzie cacy
+Program "trener szpilek" napisany na potrzeby zdalnego semestru anatomii na kierunku lekarskim na CM UJK.
 
 Wybierz folder roboczy -> masz wybrać folder ze zdjęciami, tam też trener utworzy folder na swoje dane
 Importuj struktury -> jeżeli ktoś na tych samych zdjęciach robił oznaczenia, to możesz sobie te oznaczenia dodać - w folderze ze zdjęciami wybierz folder z danymi trenera
